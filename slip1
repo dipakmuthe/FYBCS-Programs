@@ -1,0 +1,64 @@
+create table hospital(hno int primary key,
+hname varchar(20),
+city varchar(20));
+
+create table docter(dno int primary key,
+dname varchar(30),
+specialization varchar(30),
+charges int,
+hno int references hospital(hno));
+
+insert into hospital values(101,'City hospital','Pune');
+insert into hospital values(102,'Unity Hospital','Nashik');
+insert into hospital values(103,'Sanjivani Hospital','Shrirampur');
+insert into hospital values(104,'Swarajya Hospital','Nagar');
+insert into hospital values(105,'Dev Hospital','Nagar');
+
+
+insert into docter values(1,'Dr.Shevante','Maternity',1000,101);
+insert into docter values(2,'Dr.Morge','Heart Surgon',2000,101);
+insert into docter values(3,'Dr.Shirsath','Md-Medicine',500,102);
+insert into docter values(4,'Dr.Patgoakar','Md-Medicine',300,103);
+insert into docter values(5,'Dr.Haridas','Surgon',1500,103);
+insert into docter values(6,'Dr.Hande','Neuro-Surgon',3500,104);
+insert into docter values(7,'Dr.Sharma','Ortho',600,104);
+
+create or replace function disp_hosp(name varchar) returns void
+AS
+$$
+DECLARE
+r1 hospital%rowtype;
+BEGIN
+select * into r1 from hospital,docter where hospital.hno=docter.hno and dname=name;
+raise notice'hospital Number=%',r1.hno;
+raise notice'hospital Name=%',r1.hname;
+raise notice'hospital City=%',r1.city;
+end;
+$$
+language plpgsql;
+
+select disp_hosp('Dr.Shevante');
+
+create or replace function disp_hosp1(cy varchar) returns void 
+AS
+$$
+DECLARE
+name varchar(30);
+c1 cursor for select hname from hospital where city=cy;
+BEGIN
+open c1;
+loop
+fetch c1 into name;
+exit when not found;
+
+raise notice'hospital Name=%',name;
+
+end loop;
+close c1;
+end;
+$$
+language plpgsql;
+
+select disp_hosp1('Nashik');
+
+select disp_hosp1('Nagar');
