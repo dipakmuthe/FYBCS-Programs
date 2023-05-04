@@ -1,0 +1,143 @@
+create table department(dno int primary key,
+dname varchar(20),
+city varchar(20));
+
+create table employee(eno int primary key,
+ename varchar(20),
+salary money,
+dno int references department);
+
+insert into department values(101,'computer','shrirampur');
+insert into department values(102,'account','pune');
+insert into department values(103,'mechanical','mumbai');
+insert into department values(104,'IT','mumbai');
+
+insert into employee values(1,'om',30000,101);
+insert into employee values(2,'sai',25000,101);
+insert into employee values(3,'ram',32000,101);
+insert into employee values(4,'sham',40000,102);
+insert into employee values(5,'aman',50000,102);
+insert into employee values(6,'aba',60000,103);
+insert into employee values(7,'vinod',12000,103);
+insert into employee values(8,'om',39000,104);
+
+select * from department;
+
+select * from employee;
+
+create or replace function disp_city(city1 varchar) returns int
+AS
+$$
+declare
+ans int;
+begin
+select count(*) into ans from department where city=city1;
+return ans;
+end;
+$$
+language plpgsql;
+
+select disp_city('mumbai');
+-------------------------------------------------------------------------------------------
+create function disp_dept(n int,m int) returns void
+AS
+$$
+DECLARE
+r1 record;
+
+r2 record;
+c1 cursor for select dname from department;
+c2 cursor(dname1 text) for select ename from
+department,employee
+where department.dno=employee.dno
+and salary>n 
+and salary<m
+and dname=dname1;
+BEGIN
+open c1;
+loop
+    fetch c1 into r1;
+    exit when not found;
+    raise notice'-------------------------------';
+    raise notice'department name=%',r1.dname;
+        open c2(r1.dname);
+        loop
+        fetch c2 into r2;
+        exit when not found;
+        raise notice'employee name=%',r2.ename;
+        end loop;
+        close c2;
+end loop;
+close c1;
+END;
+$$
+language plpgsql;
+
+select disp_dept(20000,50000);
+-------------------------------------------------------------------------------------------
+create function disp_dep(name text) returns void float
+as
+$$
+declare
+cnt float;
+BEGIN
+select avg(salary) into cnt from employee,department where
+employee.dno=department.dno
+and dname=name;
+return cnt;
+END;
+$$
+LANGUAGE PLPGSQL;
+-------------------------------------------------------------------------------------------
+do
+$$
+declare
+name text;
+c1 cursor for select ename from employee,department
+where employee.dno=department.dno
+and dname='computer';
+begin
+open c1;
+loop
+fetch c1 into name;
+exit when not found;
+raise notice'employee name=%',name;
+end loop;
+close c1;
+end $$;
+-------------------------------------------------------------------------------------------
+create  function disp_emp(name text) returns int
+AS
+$$
+DECLARE
+cnt int;
+BEGIN
+select count(*) into cnt from  employee,department
+where employee.dno=department.dno
+and dname=name;
+return cnt;
+END;
+$$
+LANGUAGE PLPGSQL;
+
+select disp_emp('IT');
+-------------------------------------------------------------------------------------------
+create  function disp_emp(sal int) returns void
+as
+$$
+DECLARE
+name text;
+c1 cursor for select ename from employee where salary>sal;
+BEGIN
+open c1;
+loop
+fetch c1 into name;
+exit when not found;
+raise notice'employee name=%',name;
+end loop;
+close c1;
+END;
+$$
+LANGUAGE PLPGSQL;
+
+select disp_emp(30000);
