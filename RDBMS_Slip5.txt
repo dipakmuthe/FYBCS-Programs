@@ -1,0 +1,69 @@
+                   Slip-5
+Customer (cno integer, cname varchar(20), city varchar(20)) 
+Account (a_no int, a_type varchar(10), opening_date date, balance money) 
+Customer and Account are related with one to many relationship 
+==>
+create table customer(cno int primary key,cname varchar(30),
+city varchar(30));
+
+create table account(ano int primary key,atype varchar(25),
+opening_date date,balance money,cno int references customer);
+
+insert into customer values(1,'om','pune');
+insert into customer values(2,'sai','sambhajinagar');
+insert into customer values(3,'ram','shrirampur');
+insert into customer values(4,'sham','mumbai');
+insert into customer values(5,'aman','nashik');
+insert into customer values(6,'om','rahuri');
+
+insert into account values(101,'current','2008-2-29',40000,1);
+insert into account values(102,'saving','2008-4-29',320000,1);
+insert into account values(103,'saving','2010-8-29',450000,2);
+insert into account values(104,'current','2011-12-29',3000,3);
+insert into account values(105,'saving','2012-9-29',203000,4);
+insert into account values(106,'current','2014-10-29',6000,5);
+insert into account values(107,'saving','2015-7-24',800000,6);
+
+i. Write a function which accepts account no as input and prints 
+the details of that account. 
+==>
+create or replace function fun2(a int) returns void
+as'
+declare
+	rec record;
+begin
+	select * into rec from account where ano=a;
+      raise notice'' Account No=%'',rec.ano;
+      raise notice''Account Type=%'',rec.atype;
+      raise notice''Account opening date=%'',rec.opening_date;
+      raise notice''Account Balance=%'',rec.balance;
+     raise notice''Customer No=%'',rec.cno;
+end;'
+language 'plpgsql';
+
+Query:-
+ select fun2(102);
+
+iii. Write a trigger which is executed whenever update is made to 
+the account table. If the balance becomes less than 1000, print an 
+error message that balance cannot be less than 1000. 
+==>
+create or replace function fun2() returns trigger 
+as'
+begin
+	if new.balance<''1000'' then
+	raise exception ''balance cant be less than 1000'';
+end if;
+return new;
+end;'
+language 'plpgsql';
+
+create trigger t1
+before update on account
+for each row 
+execute procedure fun2();
+
+Query:-
+update account set balance=999 where atype='saving';
+
+
