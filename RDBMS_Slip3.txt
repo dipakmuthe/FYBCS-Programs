@@ -1,0 +1,92 @@
+Doctor (d_no int, d_name varchar(30), specialization varchar(35), charges int) 
+Hospital (h_no int, h_name varchar(20), city varchar(10)) 
+Doctor and Hospital are related with many to one relationship. 
+==>
+create table hospital(hno int primary key,
+hname varchar(20),
+city varchar(20));
+
+create table docter(dno int primary key,
+dname varchar(30),
+specialization varchar(30),
+charges int,
+hno int references hospital(hno));
+
+insert into hospital values(101,'City hospital','Pune');
+insert into hospital values(102,'Unity Hospital','Nashik');
+insert into hospital values(103,'Sanjivani Hospital','Shrirampur');
+insert into hospital values(104,'Swarajya Hospital','Nagar');
+insert into hospital values(105,'Dev Hospital','Nagar');
+
+insert into docter values(1,'Dr.Shevante','Maternity',1000,101);
+insert into docter values(2,'Dr.Morge','Heart Surgon',2000,101);
+insert into docter values(3,'Dr.Shirsath','Md-Medicine',500,102);
+insert into docter values(4,'Dr.Patgoakar','Md-Medicine',300,103);
+insert into docter values(5,'Dr.Haridas','Surgon',1500,103);
+insert into docter values(6,'Dr.Hande','Neuro-Surgon',3500,104);
+insert into docter values(7,'Dr.Sharma','Ortho',600,104);
+
+i) Write a trigger before insert/update on Doctor table. Raise 
+exception if charges are <0 . 
+==>
+create or replace function ins_doc() returns trigger 
+as'
+begin
+if new.charges<0 then
+raise exception''charges cant be less than 0.......'';
+end if;
+return new;
+end;'
+language 'plpgsql';
+
+create  trigger t1
+before insert or update on docter
+for each row
+execute procedure ins_doc();
+
+Query :-
+insert into docter values(99,'Dr.Shevante','Maternity',-34,101);
+
+ii) write a function which will except the names of doctor and print the hospital details that the doc is visiting.....
+==>
+create or replace function hospital(d text) returns text
+as'
+ declare                                                                                                                                   
+       rec record;
+begin
+        select hospital.* into rec from hospital ,docter where
+         hospital.hno=docter.hno and dname=d;
+            return rec.hno||''  ''||rec.hname||''  ''||rec.city;
+
+        return rec;
+        end;'
+          language 'plpgsql';
+
+Query:
+select hospital('Dr.Shirsath');
+          hospital
+
+
+iii)Write a function using cursor to accept the city name and print 
+the names of all hospitals in that city. 
+==>
+create or replace function disp_hosp1(cy varchar) returns void 
+AS
+$$
+DECLARE
+name varchar(30);
+c1 cursor for select hname from hospital where city=cy;
+BEGIN
+open c1;
+loop
+fetch c1 into name;
+exit when not found;
+raise notice'hospital Name=%',name;
+end loop;
+close c1;
+end;
+$$
+language plpgsql;
+
+Query :-
+ select disp_hosp1('Nagar');
