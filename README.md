@@ -3,13 +3,9 @@ FYBCS SEM II Slips Solutions
 
 Welcome,
 
-Click on Browse Code to see all codes...👆👆👆
+Click on Browse Code to see all codes if you open in phone...👆👆👆
 
-Here you get 15 marks questions answers...
-
-5m & 10m questions not include here...
-
-If in future I will upload then I will inform you here...
+Here you get 15 marks questions answers as well some 5m & 10m...
 
 Remaining question solution upload soon 🔜
 
