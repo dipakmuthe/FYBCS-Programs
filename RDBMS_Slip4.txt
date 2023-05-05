@@ -1,0 +1,70 @@
+                              Slip=4
+Movie (m_name varchar (25), release_year integer, budget money) 
+Actor (a_name varchar(30), role varchar(30), charges money, a_address varchar(30) ) 
+Movie and Actor are related with many to many relationship. 
+==>
+create table movie(mname varchar(30) primary key,release_year int,budget money);
+
+create table actor(aname varchar(30) primary key,role varchar(30),charges money,add varchar(30));
+
+create table ma(mname varchar(30) references movie,aname varchar(30) references actor);
+
+insert into movie values('aaa',2002,23524787);
+insert into movie values('bbb',2022,7658787);
+insert into movie values('ccc',2004,743876875);
+insert into movie values('ddd',2019,8763440);
+insert into movie values('eee',2017,424343440);
+
+insert into actor values('Sai','hero',745690,'pune');
+insert into actor values('Ram','side hero',976690,'mumbai');
+insert into actor values('Sham','hero',847690,'nashik');
+insert into actor values('Tiger','side hero',343570,'nager');
+insert into actor values('Om','side hero',7653570,'nashik');
+
+insert into ma values('aaa','Ram');
+insert into ma values('aaa','Sham');
+insert into ma values('bbb','Sai');
+insert into ma values('bbb','Tiger');
+insert into ma values('ccc','Sham');
+insert into ma values('ddd','Sai');
+insert into ma values('ddd','Tiger');
+
+i. Write a function which will accept the movie name as input and 
+prints its release year and budget. 
+==>
+create or replace function fun(m text) returns void
+as' 
+declare
+		rec record;
+begin
+		select * into rec from movie where mname=m;
+		
+       raise notice''Realease year=%'',rec.release_year;
+       raise notice''Realease year=%'',rec.budget;
+end;'
+language 'plpgsql';
+Query:-
+select fun('aaa');
+
+ii. Write a function using cursor, which will accept the actor name 
+and print the names of all movies in which that actor has acted. 
+==>
+
+iii. Write a trigger which will be executed whenever an actor is 
+deleted from the actor table, display appropriate message. 
+==>
+create or replace function act_del()returns trigger
+as'
+begin
+	raise notice''delete actor record successfully.........'';
+return new;
+end;'
+language 'plpgsql';
+
+create trigger t2
+before delete on actor
+for each row
+execute procedure act_del();
+
+Query:-
+delete from actor where aname='Sai';
